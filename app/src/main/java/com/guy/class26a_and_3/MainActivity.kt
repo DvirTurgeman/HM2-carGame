@@ -30,16 +30,20 @@ class MainActivity : AppCompatActivity() {
         val map = arrayOf(
             arrayOf(
                 binding.imgCoin00,
-                binding.imgCoin01
+                binding.imgCoin01,
+                binding.imgCoin02
             ),
             arrayOf(
-                binding.imgCoin00,
-                binding.imgCoin01
+                binding.imgCoin10,
+                binding.imgCoin01,
+                binding.imgCoin11
             ),
             arrayOf(
-                binding.imgCoin00,
-                binding.imgCoin01
+                binding.imgCoin20,
+                binding.imgCoin21,
+                binding.imgCoin21
             ),
+
         )
 
         map[0][1].visibility = View.VISIBLE
