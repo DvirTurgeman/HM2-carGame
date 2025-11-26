@@ -15,9 +15,9 @@ public class TempActivity extends AppCompatActivity {
 
 
         ImageView[][] map = new ImageView[][] {
-                {findViewById(R.id.imgCoin00), findViewById(R.id.imgCoin01)},
-                {findViewById(R.id.imgCoin00), findViewById(R.id.imgCoin01)},
-                {findViewById(R.id.imgCoin00), findViewById(R.id.imgCoin01)},
+                {findViewById(R.id.imgCoin00), findViewById(R.id.imgCoin01), findViewById(R.id.imgCoin02)},
+                {findViewById(R.id.imgCoin00), findViewById(R.id.imgCoin01)},findViewById(R.id.imgCoin12)
+                {findViewById(R.id.imgCoin00), findViewById(R.id.imgCoin01)},findViewById(R.id.imgCoin12)
         };
     }
 }
