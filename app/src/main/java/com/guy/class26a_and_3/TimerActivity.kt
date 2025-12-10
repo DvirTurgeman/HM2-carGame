@@ -2,6 +2,7 @@ package com.guy.class26a_and_3
 
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -25,16 +26,14 @@ class TimerActivity : AppCompatActivity() {
             insets
         }
 
-
-        val handler: Handler = Handler()
-        val delay = 1000 // 1000 milliseconds == 1 second
+        val handler = Handler(Looper.getMainLooper())
+        val delay = 1000L
 
         handler.postDelayed(object : Runnable {
             override fun run() {
-                println("myHandler: here!") // Do your work here
+                println("myHandler: here!")
                 handler.postDelayed(this, delay)
             }
         }, delay)
-
     }
 }

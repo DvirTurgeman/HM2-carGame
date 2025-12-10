@@ -1,17 +1,39 @@
 package com.guy.class26a_and_3
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.guy.class26a_and_3.databinding.ActivityMainBinding
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    // מנגנון הטיימר
+    private val handler = Handler(Looper.getMainLooper())
+    private var delay = 1000L // מהירות המשחק (1000 מילישניות = שנייה אחת)
+    private var isGameRunning = false
+
+    // מצב המשחק
+    private var carPosition = 1 // 0 = שמאל, 1 = אמצע, 2 = ימין
+    private var lives = 3
+
+    // מטריצה לוגית שמייצגת איפה יש אבנים (0=ריק, 1=אבן)
+    // שורות 0,1,2 (מלמעלה למטה) ועמודות 0,1,2 (שמאל לימין)
+    private val obstaclesMatrix = Array(3) { IntArray(3) { 0 } }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,26 +48,164 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        initViews()
+        startGame()
+    }
 
-        val map = arrayOf(
-            arrayOf(
-                binding.imgCoin00,
-                binding.imgCoin01,
-                binding.imgCoin02
-            ),
-            arrayOf(
-                binding.imgCoin10,
-                binding.imgCoin01,
-                binding.imgCoin11
-            ),
-            arrayOf(
-                binding.imgCoin20,
-                binding.imgCoin21,
-                binding.imgCoin21
-            ),
+    private fun initViews() {
+        // הגדרת כפתורים
+        binding.btnLeft.setOnClickListener { moveCar(-1) }
+        binding.btnRight.setOnClickListener { moveCar(1) }
 
+        updateCarUI()
+        updateHeartsUI()
+    }
+
+    private val runnable = object : Runnable {
+        override fun run() {
+            if (isGameRunning) {
+                tick() // ביצוע מהלך אחד במשחק
+                handler.postDelayed(this, delay) // תזמון המהלך הבא
+            }
+        }
+    }
+
+    private fun startGame() {
+        isGameRunning = true
+        handler.postDelayed(runnable, delay)
+    }
+
+    private fun stopGame() {
+        isGameRunning = false
+        handler.removeCallbacks(runnable)
+    }
+
+    // הפונקציה המרכזית: מזיזה הכל למטה ובודקת מה קרה
+    private fun tick() {
+        // 1. הזזת המכשולים למטה (Shift Down)
+        // שורה תחתונה (2) מקבלת את שורה אמצעית (1)
+        // שורה אמצעית (1) מקבלת את שורה עליונה (0)
+        for (col in 0..2) {
+            obstaclesMatrix[2][col] = obstaclesMatrix[1][col]
+            obstaclesMatrix[1][col] = obstaclesMatrix[0][col]
+        }
+
+        // 2. ניקוי שורה עליונה ויצירת אבן חדשה
+        obstaclesMatrix[0][0] = 0
+        obstaclesMatrix[0][1] = 0
+        obstaclesMatrix[0][2] = 0
+
+        val isObstacle = Random.nextBoolean() // האם ליצור אבן?
+        if (isObstacle) {
+            val randomLane = Random.nextInt(0, 3) // באיזה נתיב?
+            obstaclesMatrix[0][randomLane] = 1
+        }
+
+        // 3. עדכון המסך (כדי שנראה את האבנים זזות)
+        updateObstaclesUI()
+
+        // 4. בדיקת התנגשות אחרי שהאבנים ירדו
+        checkCollision()
+    }
+
+    private fun checkCollision() {
+        // אם במיקום הנוכחי של הרכב (בשורה התחתונה מס' 2) יש אבן (1)
+        if (obstaclesMatrix[2][carPosition] == 1) {
+            crash()
+        }
+    }
+
+    private fun crash() {
+        lives--
+        updateHeartsUI()
+
+        Toast.makeText(this, "CRASH!", Toast.LENGTH_SHORT).show()
+        vibrate() // רטט
+
+        // המכשול "מתנפץ" אז נוריד אותו מהמטריצה כדי שלא נתנגש בו שוב ושוב
+        obstaclesMatrix[2][carPosition] = 0
+        updateObstaclesUI()
+
+        if (lives == 0) {
+            Toast.makeText(this, "GAME OVER! Restarting...", Toast.LENGTH_LONG).show()
+            // איפוס מלא של המשחק
+            lives = 3
+            updateHeartsUI()
+            // ניקוי המטריצה
+            for (i in 0..2) {
+                for (j in 0..2) {
+                    obstaclesMatrix[i][j] = 0
+                }
+            }
+            updateObstaclesUI()
+        }
+    }
+
+    private fun moveCar(direction: Int) {
+        // שינוי מיקום
+        carPosition += direction
+
+        // הגבלת גבולות (שלא נצא מהמסך)
+        if (carPosition < 0) carPosition = 0
+        if (carPosition > 2) carPosition = 2
+
+        updateCarUI()
+
+        // בדיקת התנגשות גם כשאנחנו זזים לתוך אבן קיימת
+        checkCollision()
+    }
+
+    private fun updateCarUI() {
+        binding.imgCar0.visibility = View.INVISIBLE
+        binding.imgCar1.visibility = View.INVISIBLE
+        binding.imgCar2.visibility = View.INVISIBLE
+
+        when (carPosition) {
+            0 -> binding.imgCar0.visibility = View.VISIBLE
+            1 -> binding.imgCar1.visibility = View.VISIBLE
+            2 -> binding.imgCar2.visibility = View.VISIBLE
+        }
+    }
+
+    private fun updateObstaclesUI() {
+        // רשימה של ה-Views כדי שנוכל לגשת אליהם בלולאה
+        val viewsMatrix = arrayOf(
+            arrayOf(binding.imgCoin00, binding.imgCoin01, binding.imgCoin02),
+            arrayOf(binding.imgCoin10, binding.imgCoin11, binding.imgCoin12),
+            arrayOf(binding.imgCoin20, binding.imgCoin21, binding.imgCoin22)
         )
 
-        map[0][1].visibility = View.VISIBLE
+        for (row in 0..2) {
+            for (col in 0..2) {
+                if (obstaclesMatrix[row][col] == 1) {
+                    viewsMatrix[row][col].visibility = View.VISIBLE
+                } else {
+                    viewsMatrix[row][col].visibility = View.INVISIBLE
+                }
+            }
+        }
+    }
+
+    private fun updateHeartsUI() {
+        binding.heart1.visibility = if (lives >= 1) View.VISIBLE else View.INVISIBLE
+        binding.heart2.visibility = if (lives >= 2) View.VISIBLE else View.INVISIBLE
+        binding.heart3.visibility = if (lives >= 3) View.VISIBLE else View.INVISIBLE
+    }
+
+    private fun vibrate() {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(500)
+        }
     }
 }
