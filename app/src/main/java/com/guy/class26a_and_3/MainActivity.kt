@@ -5,6 +5,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -40,14 +42,17 @@ class MainActivity : AppCompatActivity() {
 
     private val obstaclesMatrix = Array(5) { IntArray(5) { 0 } } // 0 = empty, 1 = rock, 2 = coin
 
+    private lateinit var soundPool: SoundPool
+    private var coinSoundId: Int = 0
+    private var crashSoundId: Int = 0
+
     private val sensorEventListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 
         override fun onSensorChanged(event: SensorEvent?) {
             if (gameMode == "sensor") {
                 val x = event?.values?.get(0) ?: 0f
-                
-                // Map tilt to a lane directly for a smoother experience
+
                 val newPosition = when {
                     x > 3.0f  -> 0 // Strong left tilt
                     x > 1.0f  -> 1 // Slight left tilt
@@ -76,6 +81,7 @@ class MainActivity : AppCompatActivity() {
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
+        initSoundPool()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -85,6 +91,26 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         startGame()
+    }
+
+    private fun initSoundPool() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(5)
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        coinSoundId = soundPool.load(this, R.raw.coin_sound, 1)
+        crashSoundId = soundPool.load(this, R.raw.crash_sound, 1)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        soundPool.release()
     }
 
     override fun onResume() {
@@ -173,6 +199,7 @@ class MainActivity : AppCompatActivity() {
         updateHeartsUI()
         Toast.makeText(this, "CRASH!", Toast.LENGTH_SHORT).show()
         vibrate()
+        soundPool.play(crashSoundId, 1.0f, 1.0f, 1, 0, 1.0f)
         obstaclesMatrix[4][carPosition] = 0
         updateObstaclesUI()
 
@@ -194,6 +221,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun collectCoin() {
         coins++
+        soundPool.play(coinSoundId, 1.0f, 1.0f, 1, 0, 1.0f)
         obstaclesMatrix[4][carPosition] = 0
         updateObstaclesUI()
         updateCountersUI()
