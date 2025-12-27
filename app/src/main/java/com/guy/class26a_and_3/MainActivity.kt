@@ -22,18 +22,16 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    // מנגנון הטיימר
     private val handler = Handler(Looper.getMainLooper())
-    private var delay = 1000L // מהירות המשחק (1000 מילישניות = שנייה אחת)
+    private var delay = 1000L
     private var isGameRunning = false
 
-    // מצב המשחק
-    private var carPosition = 2 // 0-4 for 5 lanes, starting in the middle
+    private var carPosition = 2
     private var lives = 3
+    private var coins = 0
+    private var distance = 0
 
-    // מטריצה לוגית שמייצגת איפה יש אבנים (0=ריק, 1=אבן)
-    // 5 rows, 5 columns
-    private val obstaclesMatrix = Array(5) { IntArray(5) { 0 } }
+    private val obstaclesMatrix = Array(5) { IntArray(5) { 0 } } // 0 = empty, 1 = rock, 2 = coin
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,19 +51,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        // הגדרת כפתורים
         binding.btnLeft.setOnClickListener { moveCar(-1) }
         binding.btnRight.setOnClickListener { moveCar(1) }
 
         updateCarUI()
         updateHeartsUI()
+        updateCountersUI()
     }
 
     private val runnable = object : Runnable {
         override fun run() {
             if (isGameRunning) {
-                tick() // ביצוע מהלך אחד במשחק
-                handler.postDelayed(this, delay) // תזמון המהלך הבא
+                tick()
+                handler.postDelayed(this, delay)
             }
         }
     }
@@ -80,57 +78,55 @@ class MainActivity : AppCompatActivity() {
         handler.removeCallbacks(runnable)
     }
 
-    // הפונקציה המרכזית: מזיזה הכל למטה ובודקת מה קרה
     private fun tick() {
-        // 1. הזזת המכשולים למטה (Shift Down)
+        distance++
+
         for (row in 4 downTo 1) {
             for (col in 0..4) {
                 obstaclesMatrix[row][col] = obstaclesMatrix[row - 1][col]
             }
         }
 
-        // 2. ניקוי שורה עליונה ויצירת אבן חדשה
         for (col in 0..4) {
             obstaclesMatrix[0][col] = 0
         }
 
-        val isObstacle = Random.nextBoolean() // האם ליצור אבן?
-        if (isObstacle) {
-            val randomLane = Random.nextInt(0, 5) // באיזה נתיב?
+        val generateType = Random.nextInt(0, 10) // 0-6 for obstacle, 7-9 for coin
+        val randomLane = Random.nextInt(0, 5)
+
+        if (generateType < 7) { // Generate obstacle
             obstaclesMatrix[0][randomLane] = 1
+        } else { // Generate coin
+            obstaclesMatrix[0][randomLane] = 2
         }
 
-        // 3. עדכון המסך (כדי שנראה את האבנים זזות)
         updateObstaclesUI()
-
-        // 4. בדיקת התנגשות אחרי שהאבנים ירדו
         checkCollision()
+        updateCountersUI()
     }
 
     private fun checkCollision() {
-        // אם במיקום הנוכחי של הרכב (בשורה התחתונה מס\' 4) יש אבן (1)
-        if (obstaclesMatrix[4][carPosition] == 1) {
-            crash()
+        when (obstaclesMatrix[4][carPosition]) {
+            1 -> crash()
+            2 -> collectCoin()
         }
     }
 
     private fun crash() {
         lives--
         updateHeartsUI()
-
         Toast.makeText(this, "CRASH!", Toast.LENGTH_SHORT).show()
-        vibrate() // רטט
-
-        // המכשול "מתנפץ" אז נוריד אותו מהמטריצה כדי שלא נתנגש בו שוב ושוב
+        vibrate()
         obstaclesMatrix[4][carPosition] = 0
         updateObstaclesUI()
 
         if (lives == 0) {
             Toast.makeText(this, "GAME OVER! Restarting...", Toast.LENGTH_LONG).show()
-            // איפוס מלא של המשחק
             lives = 3
+            coins = 0
+            distance = 0
             updateHeartsUI()
-            // ניקוי המטריצה
+            updateCountersUI()
             for (i in 0..4) {
                 for (j in 0..4) {
                     obstaclesMatrix[i][j] = 0
@@ -140,17 +136,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun moveCar(direction: Int) {
-        // שינוי מיקום
-        carPosition += direction
+    private fun collectCoin() {
+        coins++
+        obstaclesMatrix[4][carPosition] = 0
+        updateObstaclesUI()
+        updateCountersUI()
+    }
 
-        // הגבלת גבולות (שלא נצא מהמסך)
+    private fun moveCar(direction: Int) {
+        carPosition += direction
         if (carPosition < 0) carPosition = 0
         if (carPosition > 4) carPosition = 4
-
         updateCarUI()
-
-        // בדיקת התנגשות גם כשאנחנו זזים לתוך אבן קיימת
         checkCollision()
     }
 
@@ -171,7 +168,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateObstaclesUI() {
-        // רשימה של ה-Views כדי שנוכל לגשת אליהם בלולאה
         val viewsMatrix = arrayOf(
             arrayOf(binding.imgCoin00, binding.imgCoin01, binding.imgCoin02, binding.imgCoin03, binding.imgCoin04),
             arrayOf(binding.imgCoin10, binding.imgCoin11, binding.imgCoin12, binding.imgCoin13, binding.imgCoin14),
@@ -182,10 +178,16 @@ class MainActivity : AppCompatActivity() {
 
         for (row in 0..4) {
             for (col in 0..4) {
-                if (obstaclesMatrix[row][col] == 1) {
-                    viewsMatrix[row][col].visibility = View.VISIBLE
-                } else {
-                    viewsMatrix[row][col].visibility = View.INVISIBLE
+                when (obstaclesMatrix[row][col]) {
+                    0 -> viewsMatrix[row][col].visibility = View.INVISIBLE
+                    1 -> {
+                        viewsMatrix[row][col].setImageResource(R.drawable.img_rock)
+                        viewsMatrix[row][col].visibility = View.VISIBLE
+                    }
+                    2 -> {
+                        viewsMatrix[row][col].setImageResource(R.drawable.img_coin)
+                        viewsMatrix[row][col].visibility = View.VISIBLE
+                    }
                 }
             }
         }
@@ -195,6 +197,11 @@ class MainActivity : AppCompatActivity() {
         binding.heart1.visibility = if (lives >= 1) View.VISIBLE else View.INVISIBLE
         binding.heart2.visibility = if (lives >= 2) View.VISIBLE else View.INVISIBLE
         binding.heart3.visibility = if (lives >= 3) View.VISIBLE else View.INVISIBLE
+    }
+
+    private fun updateCountersUI() {
+        binding.coinCounter.text = "Coins: $coins"
+        binding.distanceCounter.text = "Distance: $distance"
     }
 
     private fun vibrate() {
