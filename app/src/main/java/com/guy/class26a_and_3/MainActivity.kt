@@ -28,12 +28,12 @@ class MainActivity : AppCompatActivity() {
     private var isGameRunning = false
 
     // מצב המשחק
-    private var carPosition = 1 // 0 = שמאל, 1 = אמצע, 2 = ימין
+    private var carPosition = 2 // 0-4 for 5 lanes, starting in the middle
     private var lives = 3
 
     // מטריצה לוגית שמייצגת איפה יש אבנים (0=ריק, 1=אבן)
-    // שורות 0,1,2 (מלמעלה למטה) ועמודות 0,1,2 (שמאל לימין)
-    private val obstaclesMatrix = Array(3) { IntArray(3) { 0 } }
+    // 5 rows, 5 columns
+    private val obstaclesMatrix = Array(5) { IntArray(5) { 0 } }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,21 +83,20 @@ class MainActivity : AppCompatActivity() {
     // הפונקציה המרכזית: מזיזה הכל למטה ובודקת מה קרה
     private fun tick() {
         // 1. הזזת המכשולים למטה (Shift Down)
-        // שורה תחתונה (2) מקבלת את שורה אמצעית (1)
-        // שורה אמצעית (1) מקבלת את שורה עליונה (0)
-        for (col in 0..2) {
-            obstaclesMatrix[2][col] = obstaclesMatrix[1][col]
-            obstaclesMatrix[1][col] = obstaclesMatrix[0][col]
+        for (row in 4 downTo 1) {
+            for (col in 0..4) {
+                obstaclesMatrix[row][col] = obstaclesMatrix[row - 1][col]
+            }
         }
 
         // 2. ניקוי שורה עליונה ויצירת אבן חדשה
-        obstaclesMatrix[0][0] = 0
-        obstaclesMatrix[0][1] = 0
-        obstaclesMatrix[0][2] = 0
+        for (col in 0..4) {
+            obstaclesMatrix[0][col] = 0
+        }
 
         val isObstacle = Random.nextBoolean() // האם ליצור אבן?
         if (isObstacle) {
-            val randomLane = Random.nextInt(0, 3) // באיזה נתיב?
+            val randomLane = Random.nextInt(0, 5) // באיזה נתיב?
             obstaclesMatrix[0][randomLane] = 1
         }
 
@@ -109,8 +108,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkCollision() {
-        // אם במיקום הנוכחי של הרכב (בשורה התחתונה מס' 2) יש אבן (1)
-        if (obstaclesMatrix[2][carPosition] == 1) {
+        // אם במיקום הנוכחי של הרכב (בשורה התחתונה מס\' 4) יש אבן (1)
+        if (obstaclesMatrix[4][carPosition] == 1) {
             crash()
         }
     }
@@ -123,7 +122,7 @@ class MainActivity : AppCompatActivity() {
         vibrate() // רטט
 
         // המכשול "מתנפץ" אז נוריד אותו מהמטריצה כדי שלא נתנגש בו שוב ושוב
-        obstaclesMatrix[2][carPosition] = 0
+        obstaclesMatrix[4][carPosition] = 0
         updateObstaclesUI()
 
         if (lives == 0) {
@@ -132,8 +131,8 @@ class MainActivity : AppCompatActivity() {
             lives = 3
             updateHeartsUI()
             // ניקוי המטריצה
-            for (i in 0..2) {
-                for (j in 0..2) {
+            for (i in 0..4) {
+                for (j in 0..4) {
                     obstaclesMatrix[i][j] = 0
                 }
             }
@@ -147,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
         // הגבלת גבולות (שלא נצא מהמסך)
         if (carPosition < 0) carPosition = 0
-        if (carPosition > 2) carPosition = 2
+        if (carPosition > 4) carPosition = 4
 
         updateCarUI()
 
@@ -159,24 +158,30 @@ class MainActivity : AppCompatActivity() {
         binding.imgCar0.visibility = View.INVISIBLE
         binding.imgCar1.visibility = View.INVISIBLE
         binding.imgCar2.visibility = View.INVISIBLE
+        binding.imgCar3.visibility = View.INVISIBLE
+        binding.imgCar4.visibility = View.INVISIBLE
 
         when (carPosition) {
             0 -> binding.imgCar0.visibility = View.VISIBLE
             1 -> binding.imgCar1.visibility = View.VISIBLE
             2 -> binding.imgCar2.visibility = View.VISIBLE
+            3 -> binding.imgCar3.visibility = View.VISIBLE
+            4 -> binding.imgCar4.visibility = View.VISIBLE
         }
     }
 
     private fun updateObstaclesUI() {
         // רשימה של ה-Views כדי שנוכל לגשת אליהם בלולאה
         val viewsMatrix = arrayOf(
-            arrayOf(binding.imgCoin00, binding.imgCoin01, binding.imgCoin02),
-            arrayOf(binding.imgCoin10, binding.imgCoin11, binding.imgCoin12),
-            arrayOf(binding.imgCoin20, binding.imgCoin21, binding.imgCoin22)
+            arrayOf(binding.imgCoin00, binding.imgCoin01, binding.imgCoin02, binding.imgCoin03, binding.imgCoin04),
+            arrayOf(binding.imgCoin10, binding.imgCoin11, binding.imgCoin12, binding.imgCoin13, binding.imgCoin14),
+            arrayOf(binding.imgCoin20, binding.imgCoin21, binding.imgCoin22, binding.imgCoin23, binding.imgCoin24),
+            arrayOf(binding.imgCoin30, binding.imgCoin31, binding.imgCoin32, binding.imgCoin33, binding.imgCoin34),
+            arrayOf(binding.imgCoin40, binding.imgCoin41, binding.imgCoin42, binding.imgCoin43, binding.imgCoin44)
         )
 
-        for (row in 0..2) {
-            for (col in 0..2) {
+        for (row in 0..4) {
+            for (col in 0..4) {
                 if (obstaclesMatrix[row][col] == 1) {
                     viewsMatrix[row][col].visibility = View.VISIBLE
                 } else {

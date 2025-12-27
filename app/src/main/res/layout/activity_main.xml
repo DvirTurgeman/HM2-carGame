@@ -10,9 +10,9 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:rotation="0"
-        android:scaleY="3"
-        android:src="@drawable/img_lane"
+        android:scaleType="fitXY"
+        android:scaleX="1.4"
+        android:src="@drawable/five_lane_highway"
 
         />
 
@@ -89,6 +89,20 @@
                     android:layout_weight="1"
                     android:src="@drawable/img_rock"
                     android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin03"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin04"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
             </LinearLayout>
 
             <LinearLayout
@@ -115,6 +129,20 @@
 
                 <ImageView
                     android:id="@+id/imgCoin12"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin13"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin14"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -151,6 +179,110 @@
                     android:layout_weight="1"
                     android:src="@drawable/img_rock"
                     android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin23"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin24"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imgCoin30"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+
+                <ImageView
+                    android:id="@+id/imgCoin31"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+
+                <ImageView
+                    android:id="@+id/imgCoin32"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin33"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin34"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android.orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/imgCoin40"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+
+                <ImageView
+                    android:id="@+id/imgCoin41"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+
+                <ImageView
+                    android:id="@+id/imgCoin42"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin43"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
+                <ImageView
+                    android:id="@+id/imgCoin44"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:src="@drawable/img_rock"
+                    android:visibility="invisible" />
             </LinearLayout>
         </LinearLayout>
 
@@ -177,10 +309,24 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:src="@drawable/icon_car"
-                android:visibility="visible" />
+                android:visibility="invisible" />
 
             <ImageView
                 android:id="@+id/imgCar2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/icon_car"
+                android:visibility="visible" />
+            <ImageView
+                android:id="@+id/imgCar3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/icon_car"
+                android:visibility="invisible" />
+            <ImageView
+                android:id="@+id/imgCar4"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -212,7 +358,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:text="Right" />
+                android:text="Right"
+                />
         </LinearLayout>
 
     </LinearLayout>
