@@ -14,9 +14,17 @@ class MenuActivity : AppCompatActivity() {
         binding = ActivityMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.buttonModeButton.setOnClickListener {
+        binding.slowModeButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("gameMode", "button")
+            intent.putExtra("gameSpeed", "slow")
+            startActivity(intent)
+        }
+
+        binding.fastModeButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("gameMode", "button")
+            intent.putExtra("gameSpeed", "fast")
             startActivity(intent)
         }
 
@@ -25,5 +33,6 @@ class MenuActivity : AppCompatActivity() {
             intent.putExtra("gameMode", "sensor")
             startActivity(intent)
         }
+
     }
 }

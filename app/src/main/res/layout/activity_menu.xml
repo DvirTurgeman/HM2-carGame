@@ -2,14 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:orientation="vertical">
 
-    <Button
-        android:id="@+id/button_mode_button"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button Mode" />
+        android:layout_marginBottom="8dp"
+        android:text="Button Mode"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/slow_mode_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Slow" />
+
+        <Button
+            android:id="@+id/fast_mode_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Fast" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/sensor_mode_button"
@@ -17,5 +38,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Sensor Mode" />
+
+    <Button
+        android:id="@+id/high_scores_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="High Scores" />
 
 </LinearLayout>

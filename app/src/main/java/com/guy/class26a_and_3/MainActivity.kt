@@ -78,6 +78,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         gameMode = intent.getStringExtra("gameMode")
+        val gameSpeed = intent.getStringExtra("gameSpeed")
+
+        delay = when (gameSpeed) {
+            "fast" -> 500L
+            else -> 1000L
+        }
+
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
