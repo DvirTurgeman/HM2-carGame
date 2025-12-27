@@ -34,5 +34,9 @@ class MenuActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        binding.highScoresButton.setOnClickListener {
+            startActivity(Intent(this, ScoresActivity::class.java))
+        }
+
     }
 }

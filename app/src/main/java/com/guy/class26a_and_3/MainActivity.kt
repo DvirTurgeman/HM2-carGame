@@ -1,10 +1,13 @@
 package com.guy.class26a_and_3
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Location
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.Build
@@ -15,12 +18,12 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.guy.class26a_and_3.databinding.ActivityMainBinding
 import kotlin.random.Random
 
@@ -29,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
+    private lateinit var scoresManager: ScoresManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val handler = Handler(Looper.getMainLooper())
     private var delay = 1000L
@@ -72,8 +77,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -87,14 +90,10 @@ class MainActivity : AppCompatActivity() {
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        scoresManager = ScoresManager(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         initSoundPool()
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
 
         initViews()
         startGame()
@@ -195,9 +194,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkCollision() {
-        when (obstaclesMatrix[4][carPosition]) {
-            1 -> crash()
-            2 -> collectCoin()
+        if (carPosition in 0..4 && obstaclesMatrix[4][carPosition] != 0) {
+            when (obstaclesMatrix[4][carPosition]) {
+                1 -> crash()
+                2 -> collectCoin()
+            }
         }
     }
 
@@ -211,18 +212,10 @@ class MainActivity : AppCompatActivity() {
         updateObstaclesUI()
 
         if (lives == 0) {
-            Toast.makeText(this, "GAME OVER! Restarting...", Toast.LENGTH_LONG).show()
-            lives = 3
-            coins = 0
-            distance = 0
-            updateHeartsUI()
-            updateCountersUI()
-            for (i in 0..4) {
-                for (j in 0..4) {
-                    obstaclesMatrix[i][j] = 0
-                }
-            }
-            updateObstaclesUI()
+            saveScore()
+            Toast.makeText(this, "GAME OVER", Toast.LENGTH_LONG).show()
+            stopGame()
+            finish() // Return to the menu
         }
     }
 
@@ -239,7 +232,7 @@ class MainActivity : AppCompatActivity() {
         if (nextPosition in 0..4) {
             carPosition = nextPosition
             updateCarUI()
-            checkCollision() // Check for collision after every move
+            checkCollision()
         }
     }
 
@@ -310,6 +303,20 @@ class MainActivity : AppCompatActivity() {
         } else {
             @Suppress("DEPRECATION")
             vibrator.vibrate(500)
+        }
+    }
+
+    private fun saveScore() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        } else {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                val lat = location?.latitude ?: 0.0
+                val lon = location?.longitude ?: 0.0
+                val score = Score(distance, lat, lon)
+                scoresManager.saveScore(score)
+            }
         }
     }
 }
