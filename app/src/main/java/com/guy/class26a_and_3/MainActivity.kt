@@ -1,6 +1,10 @@
 package com.guy.class26a_and_3
 
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -21,6 +25,8 @@ import kotlin.random.Random
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
 
     private val handler = Handler(Looper.getMainLooper())
     private var delay = 1000L
@@ -30,8 +36,34 @@ class MainActivity : AppCompatActivity() {
     private var lives = 3
     private var coins = 0
     private var distance = 0
+    private var gameMode: String? = "button"
 
     private val obstaclesMatrix = Array(5) { IntArray(5) { 0 } } // 0 = empty, 1 = rock, 2 = coin
+
+    private val sensorEventListener = object : SensorEventListener {
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+        override fun onSensorChanged(event: SensorEvent?) {
+            if (gameMode == "sensor") {
+                val x = event?.values?.get(0) ?: 0f
+                
+                // Map tilt to a lane directly for a smoother experience
+                val newPosition = when {
+                    x > 3.0f  -> 0 // Strong left tilt
+                    x > 1.0f  -> 1 // Slight left tilt
+                    x < -3.0f -> 4 // Strong right tilt
+                    x < -1.0f -> 3 // Slight right tilt
+                    else      -> 2 // Center
+                }
+
+                if (newPosition != carPosition) {
+                    carPosition = newPosition
+                    updateCarUI()
+                    checkCollision()
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +71,11 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        gameMode = intent.getStringExtra("gameMode")
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -50,9 +87,28 @@ class MainActivity : AppCompatActivity() {
         startGame()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (gameMode == "sensor") {
+            sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (gameMode == "sensor") {
+            sensorManager.unregisterListener(sensorEventListener)
+        }
+    }
+
     private fun initViews() {
-        binding.btnLeft.setOnClickListener { moveCar(-1) }
-        binding.btnRight.setOnClickListener { moveCar(1) }
+        if (gameMode == "button") {
+            binding.btnLeft.setOnClickListener { moveCar(-1) }
+            binding.btnRight.setOnClickListener { moveCar(1) }
+        } else {
+            binding.btnLeft.visibility = View.GONE
+            binding.btnRight.visibility = View.GONE
+        }
 
         updateCarUI()
         updateHeartsUI()
@@ -91,12 +147,12 @@ class MainActivity : AppCompatActivity() {
             obstaclesMatrix[0][col] = 0
         }
 
-        val generateType = Random.nextInt(0, 10) // 0-6 for obstacle, 7-9 for coin
+        val generateType = Random.nextInt(0, 10)
         val randomLane = Random.nextInt(0, 5)
 
-        if (generateType < 7) { // Generate obstacle
+        if (generateType < 7) {
             obstaclesMatrix[0][randomLane] = 1
-        } else { // Generate coin
+        } else {
             obstaclesMatrix[0][randomLane] = 2
         }
 
@@ -144,11 +200,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun moveCar(direction: Int) {
-        carPosition += direction
-        if (carPosition < 0) carPosition = 0
-        if (carPosition > 4) carPosition = 4
-        updateCarUI()
-        checkCollision()
+        val nextPosition = carPosition + direction
+        if (nextPosition in 0..4) {
+            carPosition = nextPosition
+            updateCarUI()
+            checkCollision() // Check for collision after every move
+        }
     }
 
     private fun updateCarUI() {
