@@ -17,16 +17,17 @@ class ScoresAdapter(
 
     override fun onBindViewHolder(holder: ScoreViewHolder, position: Int) {
         val score = scores[position]
-        holder.bind(score)
+        holder.bind(score, position + 1) // Pass the rank to the holder
         holder.itemView.setOnClickListener { onScoreClicked(score) }
     }
 
     override fun getItemCount() = scores.size
 
     class ScoreViewHolder(private val binding: ItemScoreBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(score: Score) {
+        fun bind(score: Score, rank: Int) {
+            binding.scoreRank.text = "#$rank"
             binding.scoreDistance.text = "Distance: ${score.distance}"
-            binding.scoreCoins.text = "Coins Collected: ${score.coins}"
+            binding.scoreCoins.text = "Coins: ${score.coins}"
         }
     }
 }

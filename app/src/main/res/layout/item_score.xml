@@ -1,37 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:strokeColor="#C8E6C9"
+    app:strokeWidth="1dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="16dp">
+
+        <TextView
+            android:id="@+id/score_rank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="16dp"
+            android:textColor="?attr/colorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="#1" />
 
         <TextView
             android:id="@+id/score_distance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Distance: 1234"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/score_rank"
             android:textColor="?attr/colorOnSurface"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            tools:text="Distance: 1234" />
 
         <TextView
             android:id="@+id/score_coins"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Coins Collected: 56"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="16sp" />
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:textColor="#FFC107"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="Coins: 56" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </com.google.android.material.card.MaterialCardView>
