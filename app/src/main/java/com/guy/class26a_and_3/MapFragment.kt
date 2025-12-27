@@ -30,7 +30,6 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(p0: GoogleMap) {
         googleMap = p0
-        // Once the map is ready, check if there are scores to display
         if (scoresToDisplay.isNotEmpty()) {
             showAllScoresOnMap(scoresToDisplay)
         }
@@ -52,7 +51,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             val boundsBuilder = LatLngBounds.Builder()
             scores.forEach { score ->
                 val location = LatLng(score.lat, score.lon)
-                map.addMarker(MarkerOptions().position(location).title("Distance: ${score.distance}"))
+                map.addMarker(MarkerOptions().position(location).title("Distance: ${score.distance}, Coins: ${score.coins}"))
                 boundsBuilder.include(location)
             }
             val bounds = boundsBuilder.build()

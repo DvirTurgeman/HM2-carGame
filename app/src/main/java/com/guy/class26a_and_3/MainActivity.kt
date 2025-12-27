@@ -314,7 +314,7 @@ class MainActivity : AppCompatActivity() {
             fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                 val lat = location?.latitude ?: 0.0
                 val lon = location?.longitude ?: 0.0
-                val score = Score(distance, lat, lon)
+                val score = Score(distance, coins, lat, lon) // Added coins to score
                 scoresManager.saveScore(score)
             }
         }

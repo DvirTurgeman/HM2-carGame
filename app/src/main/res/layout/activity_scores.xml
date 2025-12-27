@@ -3,13 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#E8F5E9" 
     tools:context=".ScoresActivity">
 
     <LinearLayout
         android:id="@+id/fragments_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/buttons_container"
+        android:layout_above="@+id/back_button"
         android:orientation="vertical">
 
         <androidx.fragment.app.FragmentContainerView
@@ -30,27 +31,13 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/buttons_container"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/record_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:text="שיא" />
-
-        <Button
-            android:id="@+id/back_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:text="Back" />
-    </LinearLayout>
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:text="Back" />
 
 </RelativeLayout>

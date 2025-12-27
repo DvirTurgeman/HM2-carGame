@@ -15,8 +15,9 @@ class ScoresActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         scoresManager = ScoresManager(this)
-        val scores = scoresManager.getScores()
 
+        // Load all scores onto the map initially
+        val scores = scoresManager.getScores()
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as? MapFragment
         mapFragment?.showAllScoresOnMap(scores)
 
@@ -25,6 +26,7 @@ class ScoresActivity : AppCompatActivity() {
         }
     }
 
+    // This function is called by the ScoresListFragment when an item is clicked
     fun onScoreClicked(score: Score) {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map_fragment) as? MapFragment
         mapFragment?.focusOnLocation(score.lat, score.lon)

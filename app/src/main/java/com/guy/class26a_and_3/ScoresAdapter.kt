@@ -26,6 +26,7 @@ class ScoresAdapter(
     class ScoreViewHolder(private val binding: ItemScoreBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(score: Score) {
             binding.scoreDistance.text = "Distance: ${score.distance}"
+            binding.scoreCoins.text = "Coins Collected: ${score.coins}"
         }
     }
 }
